@@ -1,0 +1,98 @@
+//application {
+//  config {
+//    baseName transactionHistoryService
+//    packageName com.mobilemoney.history
+//    applicationType microservice
+//    authenticationType oauth2
+//    buildTool maven
+//    databaseType mongodb
+//    devDatabaseType mongodb
+//    prodDatabaseType mongodb
+//    searchEngine elasticsearch
+//    serviceDiscoveryType false
+//    testFrameworks [springtest]
+//    serverPort 8081
+//    jhiPrefix transactionHistory
+//    enableSwaggerCodegen true
+//    nativeLanguage en
+//    languages [en, fr]
+//  }
+//
+//  entities *
+//}
+
+// Types de transactions supportés
+enum TransactionType {
+  DEPOSIT,           // Dépôt d'argent
+  WITHDRAWAL,        // Retrait d'argent
+  TRANSFER,          // Transfert d'argent
+  BILL_PAYMENT,      // Paiement de facture
+  AIRTIME,           // Achat de crédit
+  MERCHANT_PAYMENT,  // Paiement marchand
+  BANK_TRANSFER,     // Transfert bancaire
+  TOP_UP_CARD        // Recharge de carte
+}
+
+// Statuts des transactions
+enum TransactionStatus {
+  PENDING,      // En attente
+  SUCCESS,      // Réussi
+  FAILED,       // Échoué
+  CANCELLED,    // Annulé
+  PROCESSING    // En cours de traitement
+}
+
+// Types d'événements émis par ce microservice
+enum HistoryEventType {
+  HISTORY_SAVED,           // Historique sauvegardé
+  HISTORY_PROCESSED,       // Historique traité
+  HISTORY_FAILED,          // Échec de sauvegarde
+  RECONCILIATION_NEEDED    // Besoin de réconciliation
+}
+
+// Entité principale pour l'historique des transactions
+entity TransactionHistory {
+  transactionId String required unique        // ID unique de la transaction
+  externalTransactionId String                // ID externe de la transaction
+  type TransactionType required               // Type de transaction
+  status TransactionStatus required           // Statut de la transaction
+  amount BigDecimal required                  // Montant de la transaction
+  currency String required maxlength(3)       // Devise (XOF, EUR, USD, etc.)
+  senderPhone String required                 // Numéro de l'expéditeur
+  receiverPhone String                        // Numéro du destinataire
+  senderName String                          // Nom de l'expéditeur
+  receiverName String                        // Nom du destinataire
+  description TextBlob                       // Description de la transaction
+  fees BigDecimal                            // Frais de transaction
+  balanceBefore BigDecimal                   // Solde avant transaction
+  balanceAfter BigDecimal                    // Solde après transaction
+  merchantCode String                        // Code marchand (pour paiement marchand)
+  billReference String                       // Référence de facture
+  bankAccountNumber String                   // Numéro de compte bancaire
+  transactionDate Instant required            // Date de la transaction
+  processingDate Instant                     // Date de traitement
+  createdBy String                          // Utilisateur qui a initié la transaction
+  userAgent String                          // User agent pour tracking
+  ipAddress String                          // Adresse IP
+  deviceId String                           // ID du device
+  metadata TextBlob                         // Métadonnées supplémentaires (JSON)
+  errorMessage String                       // Message d'erreur en cas d'échec
+  correlationId String                      // ID de corrélation pour tracing
+  version Integer                           // Version du schéma de l'événement
+  historySaved Boolean required              // Indique si l'historique a été sauvegardé
+}
+
+// Définition des DTOs pour les APIs
+dto TransactionHistory with mapstruct
+
+// Options de pagination
+paginate TransactionHistory with pagination
+
+// Options de recherche
+search TransactionHistory with elasticsearch
+
+// Microservice configuration
+microservice TransactionHistory with transactionHistoryService
+
+// Configuration des filtres d'entité
+filter TransactionHistory

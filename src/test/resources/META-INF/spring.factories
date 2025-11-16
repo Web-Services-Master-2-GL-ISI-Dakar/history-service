@@ -1,0 +1,5 @@
+org.springframework.test.context.ContextCustomizerFactory = \
+    com.ondmoney.sn.history.config.\
+    TestContainersSpringContextCustomizerFactory,com.ondmoney.sn.history.config.\
+    RedisTestContainersSpringContextCustomizerFactory,com.ondmoney.sn.history.\
+    config.KafkaTestContainersSpringContextCustomizerFactory
