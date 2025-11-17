@@ -130,7 +130,7 @@ spring:
     name: historyService
   cloud:
     function:
-      definition: kafkaConsumer;kafkaProducer
+      definition: transactionEventConsumer;transactionEventProducer
     stream:
       kafka:
         binder:
@@ -141,12 +141,12 @@ spring:
         binding-out-0:
           content-type: text/plain
           group: history-service
-        kafkaConsumer-in-0:
-          destination: sse-topic
-          content-type: text/plain
+        transactionEventConsumer-in-0:
+          destination: transaction-events
+          content-type: application/json
           group: history-service
-        kafkaProducer-out-0:
-          content-type: text/plain
+        transactionEventProducer-out-0:
+          content-type: application/json
           group: history-service
   docker:
     compose:
