@@ -1,8 +1,5 @@
 @echo off
-<<<<<<< HEAD
 chcp 65001 >nul
-=======
->>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
 setlocal enabledelayedexpansion
 
 REM Configuration

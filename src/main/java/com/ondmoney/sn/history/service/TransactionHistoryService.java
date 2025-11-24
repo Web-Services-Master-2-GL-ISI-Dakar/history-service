@@ -26,7 +26,7 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
 
 /**
- * Service Implementation for managing {@link com.ondmoney.sn.history.domain.TransactionHistory}.
+ * Service Implementation for managing {@link TransactionHistory}.
  */
 @Service
 public class TransactionHistoryService {

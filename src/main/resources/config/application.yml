@@ -20,10 +20,7 @@ spring:
   config:
     activate:
       on-profile: '!api-docs'
-<<<<<<< HEAD
 
-=======
->>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
 springdoc:
   api-docs:
     enabled: false
@@ -132,7 +129,6 @@ mongock:
 spring:
   application:
     name: historyService
-<<<<<<< HEAD
 
   cloud:
     function:
@@ -177,28 +173,6 @@ spring:
     properties:
       spring.json.trusted.packages: "*"
 
-=======
-  cloud:
-    function:
-      definition: transactionEventConsumer;transactionEventProducer
-    stream:
-      kafka:
-        binder:
-          replicationFactor: 1
-          auto-create-topics: true
-          brokers: localhost:9092
-      bindings:
-        binding-out-0:
-          content-type: text/plain
-          group: history-service
-        transactionEventConsumer-in-0:
-          destination: transaction-events
-          content-type: application/json
-          group: history-service
-        transactionEventProducer-out-0:
-          content-type: application/json
-          group: history-service
->>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
   docker:
     compose:
       enabled: true

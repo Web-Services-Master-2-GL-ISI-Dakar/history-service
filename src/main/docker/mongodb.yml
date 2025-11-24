@@ -10,11 +10,7 @@ services:
     # volumes:
     #   - ~/volumes/jhipster/historyService/mongodb/:/data/db/
     healthcheck:
-<<<<<<< HEAD
       test: ['CMD', 'echo', '''db.runCommand("ping").ok''', '|', 'mongo', 'localhost:27017/historyService', '--quiet']
-=======
-      test: ['CMD', 'echo', '''db.runCommand("ping").ok''', '|', 'mongo', 'localhost:27017/test', '--quiet']
->>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
       interval: 5s
       timeout: 5s
       retries: 10

@@ -20,15 +20,12 @@ logging:
     org.hibernate.SQL: DEBUG
     com.ondmoney.sn.history: DEBUG
 
-<<<<<<< HEAD
 #    org.springframework.cloud.stream: DEBUG
 #    org.springframework.kafka: DEBUG
 #    org.apache.kafka: DEBUG
 #    com.ondmoney.sn.history.broker: DEBUG
 #    org.springframework.context: DEBUG
 
-=======
->>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
 eureka:
   instance:
     prefer-ip-address: true
@@ -79,10 +76,7 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/historyService
-<<<<<<< HEAD
       database: transactions_histories
-=======
->>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
   elasticsearch:
     uris: http://localhost:9200
   messages:
@@ -120,10 +114,7 @@ jhipster:
   #   exposed-headers: "Authorization,Link,X-Total-Count"
   #   allow-credentials: true
   #   max-age: 1800
-<<<<<<< HEAD
 
-=======
->>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
   logging:
     use-json-format: false # By default, logs are not in Json format
     logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
