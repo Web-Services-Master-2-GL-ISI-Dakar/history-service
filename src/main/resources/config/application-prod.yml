@@ -17,7 +17,7 @@ logging:
   level:
     ROOT: INFO
     tech.jhipster: INFO
-    com.ondmoney.sn.history: INFO
+    sn.ondmoney.history: INFO
 
 eureka:
   instance:

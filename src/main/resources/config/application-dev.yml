@@ -18,12 +18,12 @@ logging:
     ROOT: DEBUG
     tech.jhipster: DEBUG
     org.hibernate.SQL: DEBUG
-    com.ondmoney.sn.history: DEBUG
+    sn.ondmoney.history: DEBUG
 
 #    org.springframework.cloud.stream: DEBUG
 #    org.springframework.kafka: DEBUG
 #    org.apache.kafka: DEBUG
-#    com.ondmoney.sn.history.broker: DEBUG
+#    sn.ondmoney.history.broker: DEBUG
 #    org.springframework.context: DEBUG
 
 eureka:

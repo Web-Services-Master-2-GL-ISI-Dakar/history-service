@@ -1,7 +1,7 @@
-package com.ondmoney.sn.history.service;
+package sn.ondmoney.history.service;
 
-import com.ondmoney.sn.history.domain.enumeration.TransactionStatus;
-import com.ondmoney.sn.history.domain.enumeration.TransactionType;
+import sn.ondmoney.history.domain.enumeration.TransactionStatus;
+import sn.ondmoney.history.domain.enumeration.TransactionType;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
@@ -76,8 +76,8 @@ public class TransactionEventProducer {
         try {
             TransactionEvent event = new TransactionEvent();
             event.setTransactionId("TEST_" + UUID.randomUUID().toString().substring(0, 8));
-            event.setType(com.ondmoney.sn.history.domain.enumeration.TransactionType.TRANSFER);
-            event.setStatus(com.ondmoney.sn.history.domain.enumeration.TransactionStatus.SUCCESS);
+            event.setType(sn.ondmoney.history.domain.enumeration.TransactionType.TRANSFER);
+            event.setStatus(sn.ondmoney.history.domain.enumeration.TransactionStatus.SUCCESS);
             event.setAmount(new BigDecimal("25000.00"));
             event.setCurrency("XOF");
             event.setSenderPhone("+221771234567");
@@ -295,8 +295,8 @@ public class TransactionEventProducer {
         try {
             TransactionEvent event = new TransactionEvent();
             event.setTransactionId(type + "_TEST_" + UUID.randomUUID().toString().substring(0, 6));
-            event.setType(com.ondmoney.sn.history.domain.enumeration.TransactionType.valueOf(type));
-            event.setStatus(com.ondmoney.sn.history.domain.enumeration.TransactionStatus.SUCCESS);
+            event.setType(sn.ondmoney.history.domain.enumeration.TransactionType.valueOf(type));
+            event.setStatus(sn.ondmoney.history.domain.enumeration.TransactionStatus.SUCCESS);
             event.setAmount(amount);
             event.setCurrency("XOF");
             event.setSenderPhone(sender);
@@ -334,8 +334,8 @@ public class TransactionEventProducer {
     private TransactionEvent createBaseEvent(String type, String sender, String receiver, BigDecimal amount) {
         TransactionEvent event = new TransactionEvent();
         event.setTransactionId(type + "_TEST_" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
-        event.setType(com.ondmoney.sn.history.domain.enumeration.TransactionType.valueOf(type));
-        event.setStatus(com.ondmoney.sn.history.domain.enumeration.TransactionStatus.SUCCESS);
+        event.setType(sn.ondmoney.history.domain.enumeration.TransactionType.valueOf(type));
+        event.setStatus(sn.ondmoney.history.domain.enumeration.TransactionStatus.SUCCESS);
         event.setAmount(amount);
         event.setCurrency("XOF");
         event.setSenderPhone(sender);
@@ -380,8 +380,8 @@ public class TransactionEventProducer {
     public static class TransactionEvent {
 
         private String transactionId;
-        private com.ondmoney.sn.history.domain.enumeration.TransactionType type;
-        private com.ondmoney.sn.history.domain.enumeration.TransactionStatus status;
+        private sn.ondmoney.history.domain.enumeration.TransactionType type;
+        private sn.ondmoney.history.domain.enumeration.TransactionStatus status;
         private BigDecimal amount;
         private String currency;
         private String senderPhone;
@@ -415,19 +415,19 @@ public class TransactionEventProducer {
             this.transactionId = transactionId;
         }
 
-        public com.ondmoney.sn.history.domain.enumeration.TransactionType getType() {
+        public sn.ondmoney.history.domain.enumeration.TransactionType getType() {
             return type;
         }
 
-        public void setType(com.ondmoney.sn.history.domain.enumeration.TransactionType type) {
+        public void setType(sn.ondmoney.history.domain.enumeration.TransactionType type) {
             this.type = type;
         }
 
-        public com.ondmoney.sn.history.domain.enumeration.TransactionStatus getStatus() {
+        public sn.ondmoney.history.domain.enumeration.TransactionStatus getStatus() {
             return status;
         }
 
-        public void setStatus(com.ondmoney.sn.history.domain.enumeration.TransactionStatus status) {
+        public void setStatus(sn.ondmoney.history.domain.enumeration.TransactionStatus status) {
             this.status = status;
         }
 

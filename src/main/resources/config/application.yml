@@ -124,7 +124,7 @@ management:
 
 mongock:
   migration-scan-package:
-    - com.ondmoney.sn.history.config.dbmigrations
+    - sn.ondmoney.history.config.dbmigrations
 
 spring:
   application:

@@ -22,7 +22,7 @@ eureka:
 
 mongock:
   migration-scan-package:
-    - com.ondmoney.sn.history.config.dbmigrations
+    - sn.ondmoney.history.config.dbmigrations
   mongo-db:
     read-concern: local
     write-concern:
