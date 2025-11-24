@@ -1,6 +1,7 @@
 package com.ondmoney.sn.history.service.mapper;
 
 import com.ondmoney.sn.history.domain.TransactionHistory;
+<<<<<<< HEAD
 import com.ondmoney.sn.history.domain.enumeration.TransactionStatus;
 import com.ondmoney.sn.history.domain.enumeration.TransactionType;
 import com.ondmoney.sn.history.service.dto.TransactionHistoryDTO;
@@ -50,3 +51,13 @@ public interface TransactionHistoryMapper extends EntityMapper<TransactionHistor
         return dto;
     }
 }
+=======
+import com.ondmoney.sn.history.service.dto.TransactionHistoryDTO;
+import org.mapstruct.*;
+
+/**
+ * Mapper for the entity {@link TransactionHistory} and its DTO {@link TransactionHistoryDTO}.
+ */
+@Mapper(componentModel = "spring")
+public interface TransactionHistoryMapper extends EntityMapper<TransactionHistoryDTO, TransactionHistory> {}
+>>>>>>> 74113b81d551b4b03d07d72216f57015d3781672

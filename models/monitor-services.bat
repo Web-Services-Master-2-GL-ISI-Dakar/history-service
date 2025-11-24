@@ -1,14 +1,21 @@
 @echo off
+<<<<<<< HEAD
 chcp 65001 >nul
 setlocal enabledelayedexpansion
 
 echo.
 echo ==================================================
 echo           TEST RAPIDE TRANSACTIONS
+=======
+echo.
+echo ==================================================
+echo    TEST RAPIDE TRANSACTIONS
+>>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
 echo ==================================================
 echo.
 
 set BASE_URL=http://localhost:8082/api
+<<<<<<< HEAD
 set SUCCESS_COUNT=0
 set ERROR_COUNT=0
 
@@ -96,3 +103,28 @@ if !errorlevel! equ 0 (
     set /a ERROR_COUNT+=1
 )
 exit /b
+=======
+
+echo [INFO] Génération de 3 transactions de test...
+
+curl -s -X POST "%BASE_URL%/test/transactions/DEPOSIT"
+echo [SUCCESS] Dépôt généré
+
+curl -s -X POST "%BASE_URL%/test/transactions/TRANSFER"
+echo [SUCCESS] Transfert généré
+
+curl -s -X POST "%BASE_URL%/test/transactions/BILL_PAYMENT"
+echo [SUCCESS] Paiement facture généré
+
+timeout /t 3 /nobreak >nul
+
+echo.
+echo [INFO] Test de recherche...
+curl -s "%BASE_URL%/transaction-histories/search?type=TRANSFER"
+echo.
+echo [SUCCESS] Test terminé!
+
+echo.
+echo Appuyez sur une touche pour fermer...
+pause >nul
+>>>>>>> 74113b81d551b4b03d07d72216f57015d3781672

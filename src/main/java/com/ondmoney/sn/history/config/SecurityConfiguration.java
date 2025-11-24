@@ -49,8 +49,11 @@ public class SecurityConfiguration {
                     .requestMatchers(mvc.pattern("/api/auth-info")).permitAll()
                     .requestMatchers(mvc.pattern("/api/admin/**")).hasAuthority(AuthoritiesConstants.ADMIN)
                     .requestMatchers(mvc.pattern("/api/**")).permitAll()//.authenticated()
+<<<<<<< HEAD
                     .requestMatchers(mvc.pattern("/graphiql/**")).permitAll()
                     .requestMatchers(mvc.pattern("/graphql/**")).permitAll()
+=======
+>>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
                     .requestMatchers(mvc.pattern("/v3/api-docs/**")).permitAll()//.hasAuthority(AuthoritiesConstants.ADMIN)
                     .requestMatchers(mvc.pattern("/management/health")).permitAll()
                     .requestMatchers(mvc.pattern("/management/health/**")).permitAll()

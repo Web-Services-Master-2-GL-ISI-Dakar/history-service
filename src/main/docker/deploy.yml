@@ -1,6 +1,7 @@
 # This configuration is intended for development purpose, it's **your** responsibility to harden it for production
 name: historyservice
 services:
+<<<<<<< HEAD
 #  app:
 #    image: historyservice
 #    environment:
@@ -35,6 +36,42 @@ services:
 #        condition: service_healthy
 #      jhipster-registry:
 #        condition: service_healthy
+=======
+  #  app:
+  #    image: historyservice
+  #    environment:
+  #      - _JAVA_OPTIONS=-Xmx512m -Xms256m
+  #      - SPRING_PROFILES_ACTIVE=prod,api-docs
+  #      - MANAGEMENT_PROMETHEUS_METRICS_EXPORT_ENABLED=true
+  #      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/eureka
+  #      - SPRING_CLOUD_CONFIG_URI=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/config
+  #      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/historyService
+  #      - JHIPSTER_CACHE_REDIS_SERVER=redis://redis:6379
+  #      - JHIPSTER_CACHE_REDIS_CLUSTER=false
+  #      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI=http://keycloak:9080/realms/jhipster
+  #      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID=internal
+  #      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET=internal
+  #      - SPRING_ELASTICSEARCH_URIS=http://elasticsearch:9200
+  #      - SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS=kafka:9092
+  #    healthcheck:
+  #      test:
+  #        - CMD
+  #        - curl
+  #        - -f
+  #        - http://localhost:8082/management/health
+  #      interval: 5s
+  #      timeout: 5s
+  #      retries: 40
+  #    depends_on:
+  #      mongodb:
+  #        condition: service_healthy
+  #      elasticsearch:
+  #        condition: service_healthy
+  #      keycloak:
+  #        condition: service_healthy
+  #      jhipster-registry:
+  #        condition: service_healthy
+>>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
   mongodb:
     extends:
       file: ./mongodb.yml
@@ -62,9 +99,12 @@ services:
     extends:
       file: ./kafka.yml
       service: kafka
+<<<<<<< HEAD
 
   kafka-ui:
     extends:
       file: ./kafka.yml
       service: kafka-ui
 
+=======
+>>>>>>> 74113b81d551b4b03d07d72216f57015d3781672

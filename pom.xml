@@ -187,6 +187,7 @@
             <version>${springdoc-openapi-starter-webmvc-api.version}</version>
         </dependency>
         <dependency>
+<<<<<<< HEAD
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-starter-graphql</artifactId>
         </dependency>
@@ -196,6 +197,8 @@
           <version>24.0</version>
         </dependency>
         <dependency>
+=======
+>>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-hppc</artifactId>
         </dependency>
@@ -476,10 +479,13 @@
                                 <artifactId>mapstruct-processor</artifactId>
                                 <version>${mapstruct.version}</version>
                             </path>
+<<<<<<< HEAD
                           <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                           </path>
+=======
+>>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
                         </annotationProcessorPaths>
                     </configuration>
                 </plugin>
@@ -967,8 +973,13 @@
                         </configuration>
                     </plugin>
                     <plugin>
+<<<<<<< HEAD
                       <groupId>io.github.git-commit-id</groupId>
                       <artifactId>git-commit-id-maven-plugin</artifactId>
+=======
+                        <groupId>io.github.git-commit-id</groupId>
+                        <artifactId>git-commit-id-maven-plugin</artifactId>
+>>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
                     </plugin>
                 </plugins>
             </build>
@@ -1005,8 +1016,13 @@
                     <artifactId>micrometer-tracing-bridge-brave</artifactId>
                 </dependency>
                 <dependency>
+<<<<<<< HEAD
                   <groupId>io.zipkin.reporter2</groupId>
                   <artifactId>zipkin-reporter-brave</artifactId>
+=======
+                    <groupId>io.zipkin.reporter2</groupId>
+                    <artifactId>zipkin-reporter-brave</artifactId>
+>>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
                 </dependency>
             </dependencies>
         </profile>

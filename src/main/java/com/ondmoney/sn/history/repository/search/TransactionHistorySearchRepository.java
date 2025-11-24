@@ -131,37 +131,61 @@ class TransactionHistorySearchRepositoryInternalImpl implements TransactionHisto
 
         // Filtre par expéditeur
         if (senderPhone != null && !senderPhone.trim().isEmpty()) {
+<<<<<<< HEAD
             if (!queryString.isEmpty()) queryString.append(" AND ");
+=======
+            if (queryString.length() > 0) queryString.append(" AND ");
+>>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
             queryString.append("senderPhone:").append(senderPhone);
         }
 
         // Filtre par destinataire
         if (receiverPhone != null && !receiverPhone.trim().isEmpty()) {
+<<<<<<< HEAD
             if (!queryString.isEmpty()) queryString.append(" AND ");
+=======
+            if (queryString.length() > 0) queryString.append(" AND ");
+>>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
             queryString.append("receiverPhone:").append(receiverPhone);
         }
 
         // Filtre par type
         if (type != null && !type.name().trim().isEmpty()) {
+<<<<<<< HEAD
             if (!queryString.isEmpty()) queryString.append(" AND ");
+=======
+            if (queryString.length() > 0) queryString.append(" AND ");
+>>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
             queryString.append("type:").append(type);
         }
 
         // Filtre par statut
         if (status != null && !status.name().trim().isEmpty()) {
+<<<<<<< HEAD
             if (!queryString.isEmpty()) queryString.append(" AND ");
+=======
+            if (queryString.length() > 0) queryString.append(" AND ");
+>>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
             queryString.append("status:").append(status);
         }
 
         // Filtre par plage de dates
         if (startDate != null && endDate != null) {
+<<<<<<< HEAD
             if (!queryString.isEmpty()) queryString.append(" AND ");
+=======
+            if (queryString.length() > 0) queryString.append(" AND ");
+>>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
             queryString.append("transactionDate:[").append(startDate).append(" TO ").append(endDate).append("]");
         }
 
         // Filtre par plage de montants
         if (minAmount != null && maxAmount != null) {
+<<<<<<< HEAD
             if (!queryString.isEmpty()) queryString.append(" AND ");
+=======
+            if (queryString.length() > 0) queryString.append(" AND ");
+>>>>>>> 74113b81d551b4b03d07d72216f57015d3781672
             queryString.append("amount:[").append(minAmount).append(" TO ").append(maxAmount).append("]");
         }
 
