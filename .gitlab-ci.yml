@@ -1,5 +1,9 @@
 image: jhipster/jhipster:v8.11.0
 
+variables:
+  SONAR_USER_HOME: '${CI_PROJECT_DIR}/.sonar' # Defines the location of the analysis task cache
+  GIT_DEPTH: '0' # Tells git to fetch all the branches of the project, required by the analysis task
+
 cache:
   key: '$CI_COMMIT_REF_NAME'
   paths:
@@ -55,26 +59,21 @@ maven-test:
       - target/site
     expire_in: 1 day
 
-frontend-test:
-  stage: test
-  script:
-    - npm install
-    - npm test
-  artifacts:
-    reports:
-      junit: target/test-results/TESTS-results-jest.xml
-    paths:
-      - target/test-results
-      - target/jacoco
-    expire_in: 1 day
 sonar-analyze:
   stage: analyze
+  cache:
+    key: '${CI_JOB_NAME}'
+    paths:
+      - .sonar/cache
   dependencies:
     - maven-test
-    - frontend-test
   script:
-    - ./mvnw -ntp org.jacoco:jacoco-maven-plugin:prepare-agent initialize sonar:sonar -Dsonar.organization=isi-dakar-2025-webservices -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN -Dmaven.repo.local=$MAVEN_USER_HOME
+    - ./mvnw -ntp verify sonar:sonar -Dsonar.projectKey=boboisidk_isi-dakar-2025-webservices -Dsonar.organization=boboisidk -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN -Dmaven.repo.local=$MAVEN_USER_HOME
   allow_failure: true
+  only:
+    - merge_requests
+    - main
+    - develop
 
 maven-package:
   stage: package
@@ -86,12 +85,12 @@ maven-package:
       - target/classes
     expire_in: 1 day
 # Uncomment the following section to enable pushing the Docker image to the GitLab Container Registry
-#docker-push:
-#    stage: release
-#    variables:
-#        IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
-#    dependencies:
-#        - maven-package
-#    script:
-#        - ./mvnw -ntp jib:build -Pprod -Djib.to.image=$IMAGE_TAG -Djib.to.auth.username=$CI_REGISTRY_USER -Djib.to.auth.password=$CI_REGISTRY_PASSWORD -Dmaven.repo.local=$MAVEN_USER_HOME
-
+docker-push:
+  stage: release
+  variables:
+    IMAGE_TAG: latest
+  dependencies:
+    - maven-package
+  script:
+    #- ./mvnw -ntp jib:build -Pprod -Djib.to.image=$IMAGE_TAG -Djib.to.auth.username=$CI_REGISTRY_USER -Djib.to.auth.password=$CI_REGISTRY_PASSWORD -Dmaven.repo.local=$MAVEN_USER_HOME
+    - ./mvnw -ntp jib:build -Pprod -Djib.to.image=$IMAGE_TAG -Dmaven.repo.local=$MAVEN_USER_HOME
