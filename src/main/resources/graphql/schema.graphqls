@@ -1,0 +1,151 @@
+scalar Instant
+scalar BigDecimal
+
+type TransactionHistory {
+  id: ID
+  transactionId: String!
+  externalTransactionId: String
+  type: TransactionType!
+  status: TransactionStatus!
+  amount: BigDecimal!
+  currency: String!
+  senderPhone: String!
+  receiverPhone: String
+  senderName: String
+  receiverName: String
+  description: String
+  fees: BigDecimal
+  balanceBefore: BigDecimal
+  balanceAfter: BigDecimal
+  merchantCode: String
+  billReference: String
+  bankAccountNumber: String
+  transactionDate: Instant!
+  processingDate: Instant
+  createdBy: String
+  userAgent: String
+  ipAddress: String
+  deviceId: String
+  metadata: String
+  errorMessage: String
+  correlationId: String
+  version: Int
+  historySaved: Boolean!
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER
+  BILL_PAYMENT
+  AIRTIME
+  MERCHANT_PAYMENT
+  BANK_TRANSFER
+  TOP_UP_CARD
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  CANCELLED
+  PROCESSING
+}
+
+type TransactionResponse {
+  status: String!
+  message: String!
+  type: String
+}
+
+type TransactionTypesResponse {
+  types: [String!]!
+}
+
+input TransactionHistoryInput {
+  transactionId: String!
+  externalTransactionId: String
+  type: TransactionType!
+  status: TransactionStatus!
+  amount: BigDecimal!
+  currency: String!
+  senderPhone: String!
+  receiverPhone: String
+  senderName: String
+  receiverName: String
+  description: String
+  fees: BigDecimal
+  balanceBefore: BigDecimal
+  balanceAfter: BigDecimal
+  merchantCode: String
+  billReference: String
+  bankAccountNumber: String
+  transactionDate: Instant!
+  processingDate: Instant
+  createdBy: String
+  userAgent: String
+  ipAddress: String
+  deviceId: String
+  metadata: String
+  errorMessage: String
+  correlationId: String
+  version: Int
+  historySaved: Boolean!
+}
+
+input TransactionSearchInput {
+  senderPhone: String
+  receiverPhone: String
+  type: TransactionType
+  status: TransactionStatus
+  startDate: Instant
+  endDate: Instant
+  minAmount: BigDecimal
+  maxAmount: BigDecimal
+  page: Int = 0
+  size: Int = 20
+}
+
+type TransactionPage {
+  content: [TransactionHistory!]!
+  totalElements: Int!
+  totalPages: Int!
+  size: Int!
+  number: Int!
+}
+
+type Query {
+  # Recherche de transactions avec critères multiples
+  searchTransactions(
+    searchInput: TransactionSearchInput
+  ): TransactionPage!
+
+  # Récupérer une transaction par ID
+  transactionHistory(id: ID!): TransactionHistory
+
+  # Récupérer toutes les transactions (avec pagination)
+  allTransactionHistories(page: Int = 0, size: Int = 20): TransactionPage!
+
+  # Lister tous les types de transactions disponibles
+  transactionTypes: TransactionTypesResponse!
+}
+
+type Mutation {
+  # Créer une nouvelle transaction
+  createTransactionHistory(input: TransactionHistoryInput!): TransactionHistory!
+
+  # Mettre à jour une transaction existante
+  updateTransactionHistory(id: ID!, input: TransactionHistoryInput!): TransactionHistory!
+
+  # Mise à jour partielle
+  partialUpdateTransactionHistory(id: ID!, input: TransactionHistoryInput!): TransactionHistory!
+
+  # Supprimer une transaction
+  deleteTransactionHistory(id: ID!): Boolean!
+
+  # Générer un type de transaction spécifique
+  generateTransaction(type: TransactionType!): TransactionResponse!
+
+  # Générer tous les types de transactions
+  generateAllTransactions: TransactionResponse!
+}
