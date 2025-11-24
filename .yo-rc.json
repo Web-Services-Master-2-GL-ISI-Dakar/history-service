@@ -1,0 +1,7 @@
+{
+  "generator-jhipster": {
+    "baseName": "historyService",
+    "entities": ["TransactionHistory"],
+    "jhipsterVersion": "8.11.0"
+  }
+}
