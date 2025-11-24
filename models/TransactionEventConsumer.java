@@ -1,11 +1,11 @@
-package com.ondmoney.sn.history.service;
+package sn.ondmoney.history.service;
 
-import com.ondmoney.sn.history.domain.TransactionHistory;
-import com.ondmoney.sn.history.domain.enumeration.TransactionStatus;
-import com.ondmoney.sn.history.domain.enumeration.TransactionType;
-import com.ondmoney.sn.history.repository.TransactionHistoryRepository;
-import com.ondmoney.sn.history.repository.search.TransactionHistorySearchRepository;
-import com.ondmoney.sn.history.service.dto.TransactionHistoryDTO;
+import sn.ondmoney.history.domain.TransactionHistory;
+import sn.ondmoney.history.domain.enumeration.TransactionStatus;
+import sn.ondmoney.history.domain.enumeration.TransactionType;
+import sn.ondmoney.history.repository.TransactionHistoryRepository;
+import sn.ondmoney.history.repository.search.TransactionHistorySearchRepository;
+import sn.ondmoney.history.service.dto.TransactionHistoryDTO;
 import java.time.Instant;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
