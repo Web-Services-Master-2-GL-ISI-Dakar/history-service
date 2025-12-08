@@ -1,0 +1,36 @@
+docker exec -it e7746c2aada5 mongosh
+
+show dbs
+
+use transactions_histories
+
+
+1. List all collections
+
+show collections
+
+This will show all the collections in the `transactions_histories` database.
+
+
+2. View a sample of documents
+
+Once you know a collection name (e.g., `transaction_history`), you can view some documents:
+
+db.transaction_history.find().limit(5).pretty()
+
+Count documents in a collection
+
+db.transaction_history.countDocuments()
+
+4. Query specific documents
+
+Filter documents based on fields. For example, if documents have a field `status`:
+
+db.transaction_history.find({status: "completed"}).pretty()
+
+5. Check indexes
+
+
+db.transaction_history.getIndexes()
+
+
