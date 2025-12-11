@@ -1,0 +1,13 @@
+# This configuration is intended for development purpose, it's **your** responsibility to harden it for production
+name: historyservice
+services:
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8089:8089"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: transactions_histories
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:19092   # internal container address
+#    depends_on:
+#      - kafka

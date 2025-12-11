@@ -22,7 +22,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8082/graphql",
+							"raw": "http://localhost:8086/graphql",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -48,7 +48,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8082/graphql",
+							"raw": "http://localhost:8086/graphql",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -74,7 +74,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8082/graphql",
+							"raw": "http://localhost:8086/graphql",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -100,7 +100,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8082/graphql",
+							"raw": "http://localhost:8086/graphql",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -126,7 +126,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8082/graphql",
+							"raw": "http://localhost:8086/graphql",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -152,7 +152,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8082/graphql",
+							"raw": "http://localhost:8086/graphql",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -178,7 +178,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8082/graphql",
+							"raw": "http://localhost:8086/graphql",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -204,7 +204,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8082/graphql",
+							"raw": "http://localhost:8086/graphql",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -230,7 +230,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8082/graphql",
+							"raw": "http://localhost:8086/graphql",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -256,7 +256,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8082/graphql",
+							"raw": "http://localhost:8086/graphql",
 							"protocol": "http",
 							"host": [
 								"localhost"

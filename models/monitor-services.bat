@@ -8,7 +8,7 @@ echo           TEST RAPIDE TRANSACTIONS
 echo ==================================================
 echo.
 
-set BASE_URL=http://localhost:8082/api
+set BASE_URL=http://localhost:8086/api
 set SUCCESS_COUNT=0
 set ERROR_COUNT=0
 

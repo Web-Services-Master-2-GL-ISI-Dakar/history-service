@@ -2,8 +2,7 @@ package sn.ondmoney.history.repository.search;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryStringQuery;
 import sn.ondmoney.history.domain.TransactionHistory;
-import sn.ondmoney.history.domain.enumeration.TransactionStatus;
-import sn.ondmoney.history.domain.enumeration.TransactionType;
+import sn.ondmoney.history.domain.enumeration.*;
 import sn.ondmoney.history.repository.TransactionHistoryRepository;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -32,14 +31,17 @@ interface TransactionHistorySearchRepositoryInternal {
 
     Page<TransactionHistory> search(Query query);
 
-    // Méthodes de recherche existantes avec QUERYSTRING
+    // Existing methods with QUERYSTRING
     Page<TransactionHistory> findBySenderPhone(String senderPhone, Pageable pageable);
     Page<TransactionHistory> findByReceiverPhone(String receiverPhone, Pageable pageable);
     Page<TransactionHistory> findByTransactionDateBetween(Instant startDate, Instant endDate, Pageable pageable);
     Page<TransactionHistory> findByAmountBetween(BigDecimal minAmount, BigDecimal maxAmount, Pageable pageable);
     Page<TransactionHistory> findByTypeAndStatus(String type, String status, Pageable pageable);
 
-    // Méthode de recherche avancée avec QUERYSTRING
+    // NEW: Find by user phone (both sender and receiver)
+    Page<TransactionHistory> findByUserPhone(String phoneNumber, Pageable pageable);
+
+    // Original advanced search method for backward compatibility
     Page<TransactionHistory> searchByCriteria(
         String senderPhone,
         String receiverPhone,
@@ -49,6 +51,25 @@ interface TransactionHistorySearchRepositoryInternal {
         Instant endDate,
         BigDecimal minAmount,
         BigDecimal maxAmount,
+        Pageable pageable
+    );
+
+    // NEW: Enhanced search with all criteria
+    Page<TransactionHistory> searchByCriteria(
+        String senderPhone,
+        String receiverPhone,
+        List<TransactionType> types,
+        List<TransactionStatus> statuses,
+        Instant startDate,
+        Instant endDate,
+        BigDecimal minAmount,
+        BigDecimal maxAmount,
+        String currency,
+        TransactionDirection direction,
+        String merchantCode,
+        String billReference,
+        String bankAccountNumber,
+        String descriptionContains,
         Pageable pageable
     );
 
@@ -97,6 +118,12 @@ class TransactionHistorySearchRepositoryInternalImpl implements TransactionHisto
     }
 
     @Override
+    public Page<TransactionHistory> findByUserPhone(String phoneNumber, Pageable pageable) {
+        String queryString = "(senderPhone:" + phoneNumber + " OR receiverPhone:" + phoneNumber + ")";
+        return search(queryString, pageable);
+    }
+
+    @Override
     public Page<TransactionHistory> findByTransactionDateBetween(Instant startDate, Instant endDate, Pageable pageable) {
         String queryString = "transactionDate:[" + startDate + " TO " + endDate + "]";
         return search(queryString, pageable);
@@ -126,54 +153,185 @@ class TransactionHistorySearchRepositoryInternalImpl implements TransactionHisto
         BigDecimal maxAmount,
         Pageable pageable
     ) {
-        // Construction de la requête QUERYSTRING comme la recherche originale
+        // For backward compatibility - convert single type/status to lists
+        List<TransactionType> types = type != null ? List.of(type) : null;
+        List<TransactionStatus> statuses = status != null ? List.of(status) : null;
+
+        return searchByCriteria(
+            senderPhone,
+            receiverPhone,
+            types,
+            statuses,
+            startDate,
+            endDate,
+            minAmount,
+            maxAmount,
+            null, // currency
+            null, // direction
+            null, // merchantCode
+            null, // billReference
+            null, // bankAccountNumber
+            null, // descriptionContains
+            pageable
+        );
+    }
+
+    @Override
+    public Page<TransactionHistory> searchByCriteria(
+        String senderPhone,
+        String receiverPhone,
+        List<TransactionType> types,
+        List<TransactionStatus> statuses,
+        Instant startDate,
+        Instant endDate,
+        BigDecimal minAmount,
+        BigDecimal maxAmount,
+        String currency,
+        TransactionDirection direction,
+        String merchantCode,
+        String billReference,
+        String bankAccountNumber,
+        String descriptionContains,
+        Pageable pageable
+    ) {
+        // Build query string with all criteria
         StringBuilder queryString = new StringBuilder();
 
-        // Filtre par expéditeur
-        if (senderPhone != null && !senderPhone.trim().isEmpty()) {
-            if (!queryString.isEmpty()) queryString.append(" AND ");
-            queryString.append("senderPhone:").append(senderPhone);
+        // Handle direction-based phone filtering
+        if (direction != null) {
+            switch (direction) {
+                case SENT:
+                    if (senderPhone != null) {
+                        addAndClause(queryString);
+                        queryString.append("senderPhone:").append(senderPhone);
+                    }
+                    break;
+                case RECEIVED:
+                    if (receiverPhone != null) {
+                        addAndClause(queryString);
+                        queryString.append("receiverPhone:").append(receiverPhone);
+                    }
+                    break;
+                case ALL:
+                    // For ALL direction, search both sender and receiver
+                    if (senderPhone != null && receiverPhone != null) {
+                        addAndClause(queryString);
+                        queryString.append("(senderPhone:").append(senderPhone)
+                            .append(" OR receiverPhone:").append(receiverPhone).append(")");
+                    } else if (senderPhone != null) {
+                        addAndClause(queryString);
+                        queryString.append("(senderPhone:").append(senderPhone)
+                            .append(" OR receiverPhone:").append(senderPhone).append(")");
+                    } else if (receiverPhone != null) {
+                        addAndClause(queryString);
+                        queryString.append("(senderPhone:").append(receiverPhone)
+                            .append(" OR receiverPhone:").append(receiverPhone).append(")");
+                    }
+                    break;
+            }
+        } else {
+            // No direction specified, use individual phone filters
+            if (senderPhone != null) {
+                addAndClause(queryString);
+                queryString.append("senderPhone:").append(senderPhone);
+            }
+            if (receiverPhone != null) {
+                addAndClause(queryString);
+                queryString.append("receiverPhone:").append(receiverPhone);
+            }
         }
 
-        // Filtre par destinataire
-        if (receiverPhone != null && !receiverPhone.trim().isEmpty()) {
-            if (!queryString.isEmpty()) queryString.append(" AND ");
-            queryString.append("receiverPhone:").append(receiverPhone);
+        // Multiple types
+        if (types != null && !types.isEmpty()) {
+            addAndClause(queryString);
+            queryString.append("(");
+            for (int i = 0; i < types.size(); i++) {
+                if (i > 0) queryString.append(" OR ");
+                queryString.append("type:").append(types.get(i));
+            }
+            queryString.append(")");
         }
 
-        // Filtre par type
-        if (type != null && !type.name().trim().isEmpty()) {
-            if (!queryString.isEmpty()) queryString.append(" AND ");
-            queryString.append("type:").append(type);
+        // Multiple statuses
+        if (statuses != null && !statuses.isEmpty()) {
+            addAndClause(queryString);
+            queryString.append("(");
+            for (int i = 0; i < statuses.size(); i++) {
+                if (i > 0) queryString.append(" OR ");
+                queryString.append("status:").append(statuses.get(i));
+            }
+            queryString.append(")");
         }
 
-        // Filtre par statut
-        if (status != null && !status.name().trim().isEmpty()) {
-            if (!queryString.isEmpty()) queryString.append(" AND ");
-            queryString.append("status:").append(status);
-        }
-
-        // Filtre par plage de dates
+        // Date range
         if (startDate != null && endDate != null) {
-            if (!queryString.isEmpty()) queryString.append(" AND ");
+            addAndClause(queryString);
             queryString.append("transactionDate:[").append(startDate).append(" TO ").append(endDate).append("]");
+        } else if (startDate != null) {
+            addAndClause(queryString);
+            queryString.append("transactionDate:[").append(startDate).append(" TO *]");
+        } else if (endDate != null) {
+            addAndClause(queryString);
+            queryString.append("transactionDate:[* TO ").append(endDate).append("]");
         }
 
-        // Filtre par plage de montants
+        // Amount range
         if (minAmount != null && maxAmount != null) {
-            if (!queryString.isEmpty()) queryString.append(" AND ");
+            addAndClause(queryString);
             queryString.append("amount:[").append(minAmount).append(" TO ").append(maxAmount).append("]");
+        } else if (minAmount != null) {
+            addAndClause(queryString);
+            queryString.append("amount:[").append(minAmount).append(" TO *]");
+        } else if (maxAmount != null) {
+            addAndClause(queryString);
+            queryString.append("amount:[* TO ").append(maxAmount).append("]");
+        }
+
+        // Currency
+        if (currency != null && !currency.trim().isEmpty()) {
+            addAndClause(queryString);
+            queryString.append("currency:").append(currency);
+        }
+
+        // Merchant code
+        if (merchantCode != null && !merchantCode.trim().isEmpty()) {
+            addAndClause(queryString);
+            queryString.append("merchantCode:").append(merchantCode);
+        }
+
+        // Bill reference
+        if (billReference != null && !billReference.trim().isEmpty()) {
+            addAndClause(queryString);
+            queryString.append("billReference:").append(billReference);
+        }
+
+        // Bank account number
+        if (bankAccountNumber != null && !bankAccountNumber.trim().isEmpty()) {
+            addAndClause(queryString);
+            queryString.append("bankAccountNumber:").append(bankAccountNumber);
+        }
+
+        // Description contains (wildcard search)
+        if (descriptionContains != null && !descriptionContains.trim().isEmpty()) {
+            addAndClause(queryString);
+            queryString.append("description:*").append(descriptionContains).append("*");
         }
 
         String finalQuery = queryString.toString();
 
-        // Si aucun critère n'est spécifié, on retourne tous les résultats
+        // If no criteria specified, return all results
         if (finalQuery.isEmpty()) {
             finalQuery = "*";
         }
 
-        LOG.debug("Executing QUERYSTRING search: {}", finalQuery);
+        LOG.debug("Executing enhanced QUERYSTRING search: {}", finalQuery);
         return search(finalQuery, pageable);
+    }
+
+    private void addAndClause(StringBuilder queryString) {
+        if (queryString.length() > 0) {
+            queryString.append(" AND ");
+        }
     }
 
     @Override

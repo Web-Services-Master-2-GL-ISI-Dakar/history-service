@@ -808,8 +808,8 @@
     {
       "id": "6e8deddb-b4d6-4e2e-b389-b397d3f74fcd",
       "clientId": "web_app",
-      "rootUrl": "http://localhost:8082",
-      "adminUrl": "http://localhost:8082",
+      "rootUrl": "http://localhost:8086",
+      "adminUrl": "http://localhost:8086",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,

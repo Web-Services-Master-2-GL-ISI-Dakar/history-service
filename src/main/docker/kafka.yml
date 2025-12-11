@@ -1,6 +1,5 @@
 # This configuration is intended for development purpose, it's **your** responsibility to harden it for production
 name: historyservice
-
 services:
   kafka:
     image: apache/kafka-native:4.0.0
@@ -27,14 +26,3 @@ services:
 
     labels:
       org.springframework.boot.ignore: true
-
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    container_name: kafka-ui
-    ports:
-      - "8083:8080"
-    environment:
-      KAFKA_CLUSTERS_0_NAME: transactions_histories
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:19092   # internal container address
-    depends_on:
-      - kafka

@@ -52,6 +52,25 @@ enum TransactionStatus {
   PROCESSING
 }
 
+enum TransactionDirection {
+  SENT
+  RECEIVED
+  ALL
+}
+
+enum TransactionSortField {
+  TRANSACTION_DATE
+  AMOUNT
+  STATUS
+  TYPE
+  CREATED_AT
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
 type TransactionResponse {
   status: String!
   message: String!
@@ -94,16 +113,35 @@ input TransactionHistoryInput {
 }
 
 input TransactionSearchInput {
+  # User identifiers
   senderPhone: String
   receiverPhone: String
-  type: TransactionType
-  status: TransactionStatus
+
+  # Multi-select filters
+  types: [TransactionType!]
+  statuses: [TransactionStatus!]
+
+  # Date range
   startDate: Instant
   endDate: Instant
+
+  # Amount range
   minAmount: BigDecimal
   maxAmount: BigDecimal
+
+  # Additional filters
+  currency: String
+  direction: TransactionDirection
+  merchantCode: String
+  billReference: String
+  bankAccountNumber: String
+  descriptionContains: String
+
+  # Pagination & Sorting
   page: Int = 0
   size: Int = 20
+  sortBy: TransactionSortField = TRANSACTION_DATE
+  sortDirection: SortDirection = DESC
 }
 
 type TransactionPage {
@@ -114,38 +152,96 @@ type TransactionPage {
   number: Int!
 }
 
+type UserTransactionStats {
+  totalTransactions: Int!
+  totalAmount: BigDecimal!
+  successfulTransactions: Int!
+  failedTransactions: Int!
+  pendingTransactions: Int!
+  cancelledTransactions: Int!
+  processingTransactions: Int!
+
+  # Transaction type breakdown
+  transactionTypeSummary: [TransactionTypeSummary!]
+
+  # Date information
+  firstTransactionDate: Instant
+  lastTransactionDate: Instant
+  periodStart: Instant
+  periodEnd: Instant
+
+  # Optional: Monthly summary if needed
+  monthlySummary: [MonthlySummary!]
+}
+
+type TransactionTypeSummary {
+  type: TransactionType!
+  count: Int!
+  totalAmount: BigDecimal!
+  percentage: Float!
+}
+
+type MonthlySummary {
+  month: String!  # Format: "YYYY-MM"
+  count: Int!
+  totalAmount: BigDecimal!
+}
+
 type Query {
-  # Recherche de transactions avec critères multiples
+  # Search transactions with multiple criteria
   searchTransactions(
     searchInput: TransactionSearchInput
   ): TransactionPage!
 
-  # Récupérer une transaction par ID
+  # Get transaction by ID
   transactionHistory(id: ID!): TransactionHistory
 
-  # Récupérer toutes les transactions (avec pagination)
+  # Get all transactions (with pagination)
   allTransactionHistories(page: Int = 0, size: Int = 20): TransactionPage!
 
-  # Lister tous les types de transactions disponibles
+  # List all available transaction types
   transactionTypes: TransactionTypesResponse!
+
+  # Get user's complete transaction history
+  userTransactions(
+    phoneNumber: String!
+    page: Int = 0
+    size: Int = 20
+    types: [TransactionType!]
+    statuses: [TransactionStatus!]
+    startDate: Instant
+    endDate: Instant
+    direction: TransactionDirection = ALL
+    sortBy: TransactionSortField = TRANSACTION_DATE
+    sortDirection: SortDirection = DESC
+  ): TransactionPage!
+
+  # Get transaction statistics for a user
+  userTransactionStats(
+    phoneNumber: String!
+    startDate: Instant
+    endDate: Instant
+    types: [TransactionType!]
+    direction: TransactionDirection = ALL
+  ): UserTransactionStats!
 }
 
 type Mutation {
-  # Créer une nouvelle transaction
+  # Create new transaction
   createTransactionHistory(input: TransactionHistoryInput!): TransactionHistory!
 
-  # Mettre à jour une transaction existante
+  # Update existing transaction
   updateTransactionHistory(id: ID!, input: TransactionHistoryInput!): TransactionHistory!
 
-  # Mise à jour partielle
+  # Partial update
   partialUpdateTransactionHistory(id: ID!, input: TransactionHistoryInput!): TransactionHistory!
 
-  # Supprimer une transaction
+  # Delete transaction
   deleteTransactionHistory(id: ID!): Boolean!
 
-  # Générer un type de transaction spécifique
+  # Generate specific transaction type
   generateTransaction(type: TransactionType!): TransactionResponse!
 
-  # Générer tous les types de transactions
+  # Generate all transaction types
   generateAllTransactions: TransactionResponse!
 }

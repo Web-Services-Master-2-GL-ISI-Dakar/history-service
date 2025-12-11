@@ -1,32 +1,29 @@
 package sn.ondmoney.history.service;
 
-import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import sn.ondmoney.history.domain.TransactionHistory;
-import sn.ondmoney.history.domain.enumeration.TransactionStatus;
-import sn.ondmoney.history.domain.enumeration.TransactionType;
+import sn.ondmoney.history.domain.enumeration.*;
 import sn.ondmoney.history.repository.TransactionHistoryRepository;
 import sn.ondmoney.history.repository.search.TransactionHistorySearchRepository;
 import sn.ondmoney.history.service.dto.TransactionHistoryDTO;
 import sn.ondmoney.history.service.mapper.TransactionHistoryMapper;
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.Optional;
-
+import sn.ondmoney.history.web.graphql.response.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
-import org.springframework.data.elasticsearch.client.elc.NativeQuery;
-import org.springframework.data.elasticsearch.core.SearchHit;
-import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link TransactionHistory}.
  */
 @Service
+@Transactional
 public class TransactionHistoryService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransactionHistoryService.class);
@@ -34,19 +31,22 @@ public class TransactionHistoryService {
     private final TransactionHistoryRepository transactionHistoryRepository;
     private final TransactionHistoryMapper transactionHistoryMapper;
     private final TransactionHistorySearchRepository transactionHistorySearchRepository;
+    private final TransactionHistorySearchService transactionHistorySearchService;
 
     public TransactionHistoryService(
         TransactionHistoryRepository transactionHistoryRepository,
         TransactionHistoryMapper transactionHistoryMapper,
-        TransactionHistorySearchRepository transactionHistorySearchRepository
+        TransactionHistorySearchRepository transactionHistorySearchRepository,
+        TransactionHistorySearchService transactionHistorySearchService
     ) {
         this.transactionHistoryRepository = transactionHistoryRepository;
         this.transactionHistoryMapper = transactionHistoryMapper;
         this.transactionHistorySearchRepository = transactionHistorySearchRepository;
+        this.transactionHistorySearchService = transactionHistorySearchService;
     }
 
     /**
-     * Search transactions with multiple criteria using the existing search repository pattern
+     * Search transactions with multiple criteria using the enhanced search service
      */
     public Page<TransactionHistoryDTO> searchByCriteria(
         String senderPhone,
@@ -71,18 +71,143 @@ public class TransactionHistoryService {
             maxAmount
         );
 
-        Page<TransactionHistory> page = transactionHistorySearchRepository.searchByCriteria(
+        // Convert single type/status to lists for backward compatibility
+        List<TransactionType> types = transactionType != null ? List.of(transactionType) : null;
+        List<TransactionStatus> statuses = transactionStatus != null ? List.of(transactionStatus) : null;
+
+        Page<TransactionHistory> page = transactionHistorySearchService.advancedSearch(
             senderPhone,
             receiverPhone,
-            transactionType,
-            transactionStatus,
+            types,
+            statuses,
             startDate,
             endDate,
             minAmount,
             maxAmount,
+            null, // currency
+            null, // direction
+            null, // merchantCode
+            null, // billReference
+            null, // bankAccountNumber
+            null, // descriptionContains
             pageable
         );
 
+        return page.map(transactionHistoryMapper::toDto);
+    }
+
+    /**
+     * Enhanced search with all new criteria
+     */
+    public Page<TransactionHistoryDTO> searchByCriteria(
+        String senderPhone,
+        String receiverPhone,
+        List<TransactionType> types,
+        List<TransactionStatus> statuses,
+        Instant startDate,
+        Instant endDate,
+        BigDecimal minAmount,
+        BigDecimal maxAmount,
+        String currency,
+        TransactionDirection direction,
+        String merchantCode,
+        String billReference,
+        String bankAccountNumber,
+        String descriptionContains,
+        Pageable pageable
+    ) {
+        LOG.debug(
+            "Enhanced search with criteria - sender: {}, receiver: {}, types: {}, statuses: {}, dateRange: {}-{}, amountRange: {}-{}, currency: {}, direction: {}, merchantCode: {}, billRef: {}, bankAcc: {}, descriptionContains: {}",
+            senderPhone,
+            receiverPhone,
+            types,
+            statuses,
+            startDate,
+            endDate,
+            minAmount,
+            maxAmount,
+            currency,
+            direction,
+            merchantCode,
+            billReference,
+            bankAccountNumber,
+            descriptionContains
+        );
+
+        Page<TransactionHistory> page = transactionHistorySearchService.advancedSearch(
+            senderPhone,
+            receiverPhone,
+            types,
+            statuses,
+            startDate,
+            endDate,
+            minAmount,
+            maxAmount,
+            currency,
+            direction,
+            merchantCode,
+            billReference,
+            bankAccountNumber,
+            descriptionContains,
+            pageable
+        );
+
+        return page.map(transactionHistoryMapper::toDto);
+    }
+
+    /**
+     * Get user transaction statistics
+     */
+    public UserTransactionStats getUserTransactionStats(
+        String phoneNumber,
+        Instant startDate,
+        Instant endDate,
+        List<TransactionType> types,
+        TransactionDirection direction
+    ) {
+        LOG.debug("Getting transaction stats for user: {}", phoneNumber);
+        return transactionHistorySearchService.getUserTransactionStats(
+            phoneNumber,
+            startDate,
+            endDate,
+            types,
+            direction
+        );
+    }
+
+    /**
+     * Get all transactions for a user (as sender or receiver)
+     */
+    public Page<TransactionHistoryDTO> getUserTransactions(
+        String phoneNumber,
+        Pageable pageable
+    ) {
+        LOG.debug("Getting all transactions for user: {}", phoneNumber);
+        Page<TransactionHistory> page = transactionHistorySearchRepository.findByUserPhone(phoneNumber, pageable);
+        return page.map(transactionHistoryMapper::toDto);
+    }
+
+    /**
+     * Get transactions where user is sender
+     */
+    public Page<TransactionHistoryDTO> getSentTransactions(
+        String phoneNumber,
+        Pageable pageable
+    ) {
+        LOG.debug("Getting sent transactions for user: {}", phoneNumber);
+        Page<TransactionHistory> page = transactionHistorySearchRepository.findBySenderPhone(phoneNumber, pageable);
+        return page.map(transactionHistoryMapper::toDto);
+    }
+
+    /**
+     * Get transactions where user is receiver
+     */
+    public Page<TransactionHistoryDTO> getReceivedTransactions(
+        String phoneNumber,
+        Pageable pageable
+    ) {
+        LOG.debug("Getting received transactions for user: {}", phoneNumber);
+        Page<TransactionHistory> page = transactionHistorySearchRepository.findByReceiverPhone(phoneNumber, pageable);
         return page.map(transactionHistoryMapper::toDto);
     }
 

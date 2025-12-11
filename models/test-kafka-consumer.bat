@@ -3,7 +3,7 @@ chcp 65001 >nul
 setlocal enabledelayedexpansion
 
 :: Configuration
-set BASE_URL=http://localhost:8082/api
+set BASE_URL=http://localhost:8086/api
 set GREEN=[SUCCESS]
 set RED=[ERROR]
 set BLUE=[INFO]
