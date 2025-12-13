@@ -1,7 +1,10 @@
 package sn.ondmoney.history.broker;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import sn.ondmoney.history.service.dto.HistoryEventDTO;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -22,7 +25,8 @@ public class TransactionHistoryEventProducer implements Supplier<Message<String>
 
     public TransactionHistoryEventProducer(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
-    }
+        this.objectMapper.registerModule(new JavaTimeModule());
+        this.objectMapper.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);    }
 
     @Override
     public Message<String> get() {

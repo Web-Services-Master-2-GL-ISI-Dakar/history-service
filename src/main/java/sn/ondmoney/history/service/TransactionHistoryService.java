@@ -33,12 +33,16 @@ public class TransactionHistoryService {
     private final TransactionHistorySearchRepository transactionHistorySearchRepository;
     private final TransactionHistorySearchService transactionHistorySearchService;
 
+    private final PhoneNumberNormalizer phoneNumberNormalizer;
+
     public TransactionHistoryService(
         TransactionHistoryRepository transactionHistoryRepository,
         TransactionHistoryMapper transactionHistoryMapper,
         TransactionHistorySearchRepository transactionHistorySearchRepository,
-        TransactionHistorySearchService transactionHistorySearchService
+        TransactionHistorySearchService transactionHistorySearchService,
+        PhoneNumberNormalizer phoneNumberNormalizer
     ) {
+        this.phoneNumberNormalizer = phoneNumberNormalizer;
         this.transactionHistoryRepository = transactionHistoryRepository;
         this.transactionHistoryMapper = transactionHistoryMapper;
         this.transactionHistorySearchRepository = transactionHistorySearchRepository;
@@ -211,6 +215,15 @@ public class TransactionHistoryService {
         return page.map(transactionHistoryMapper::toDto);
     }
 
+    private void normalizePhoneNumbers(TransactionHistoryDTO dto) {
+        if (dto.getSenderPhone() != null) {
+            dto.setSenderPhone(phoneNumberNormalizer.normalize(dto.getSenderPhone()));
+        }
+        if (dto.getReceiverPhone() != null) {
+            dto.setReceiverPhone(phoneNumberNormalizer.normalize(dto.getReceiverPhone()));
+        }
+    }
+
     /**
      * Save a transactionHistory.
      *
@@ -218,11 +231,19 @@ public class TransactionHistoryService {
      * @return the persisted entity.
      */
     public TransactionHistoryDTO save(TransactionHistoryDTO transactionHistoryDTO) {
-        LOG.debug("Request to save TransactionHistory : {}", transactionHistoryDTO);
-        TransactionHistory transactionHistory = transactionHistoryMapper.toEntity(transactionHistoryDTO);
-        transactionHistory = transactionHistoryRepository.save(transactionHistory);
-        transactionHistorySearchRepository.index(transactionHistory);
-        return transactionHistoryMapper.toDto(transactionHistory);
+        LOG.debug("Request to save TransactionHistory: {}", transactionHistoryDTO);
+
+        if (transactionHistoryDTO.getId() != null) {
+            throw new RuntimeException("A new transactionHistory cannot already have an ID");
+        }
+
+        // Normalisation simple
+        normalizePhoneNumbers(transactionHistoryDTO);
+
+        TransactionHistory entity = transactionHistoryMapper.toEntity(transactionHistoryDTO);
+        entity = transactionHistoryRepository.save(entity);
+        transactionHistorySearchRepository.index(entity);
+        return transactionHistoryMapper.toDto(entity);
     }
 
     /**
@@ -232,11 +253,15 @@ public class TransactionHistoryService {
      * @return the persisted entity.
      */
     public TransactionHistoryDTO update(TransactionHistoryDTO transactionHistoryDTO) {
-        LOG.debug("Request to update TransactionHistory : {}", transactionHistoryDTO);
-        TransactionHistory transactionHistory = transactionHistoryMapper.toEntity(transactionHistoryDTO);
-        transactionHistory = transactionHistoryRepository.save(transactionHistory);
-        transactionHistorySearchRepository.index(transactionHistory);
-        return transactionHistoryMapper.toDto(transactionHistory);
+        LOG.debug("Request to update TransactionHistory: {}", transactionHistoryDTO);
+
+        // Normalisation simple
+        normalizePhoneNumbers(transactionHistoryDTO);
+
+        TransactionHistory entity = transactionHistoryMapper.toEntity(transactionHistoryDTO);
+        entity = transactionHistoryRepository.save(entity);
+        transactionHistorySearchRepository.index(entity);
+        return transactionHistoryMapper.toDto(entity);
     }
 
     /**
@@ -246,11 +271,19 @@ public class TransactionHistoryService {
      * @return the persisted entity.
      */
     public Optional<TransactionHistoryDTO> partialUpdate(TransactionHistoryDTO transactionHistoryDTO) {
-        LOG.debug("Request to partially update TransactionHistory : {}", transactionHistoryDTO);
+        LOG.debug("Request to partially update TransactionHistory: {}", transactionHistoryDTO);
 
         return transactionHistoryRepository
             .findById(transactionHistoryDTO.getId())
             .map(existingTransactionHistory -> {
+                // Normalisation seulement si les numéros sont fournis
+                if (transactionHistoryDTO.getSenderPhone() != null) {
+                    existingTransactionHistory.setSenderPhone(phoneNumberNormalizer.normalize(transactionHistoryDTO.getSenderPhone()));
+                }
+                if (transactionHistoryDTO.getReceiverPhone() != null) {
+                    existingTransactionHistory.setReceiverPhone(phoneNumberNormalizer.normalize(transactionHistoryDTO.getReceiverPhone()));
+                }
+
                 transactionHistoryMapper.partialUpdate(existingTransactionHistory, transactionHistoryDTO);
 
                 return existingTransactionHistory;

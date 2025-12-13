@@ -277,43 +277,13 @@ public class TransactionHistoryGraphQLController {
                 testDataGenerator.generateTestTransaction(type);
                 return type.toString() + " - Generated";
             })
-            .collect(Collectors.toList());
+            .toList();
 
         return new TransactionResponse("success", "All transaction types generated and sent to Kafka", null);
     }
 
     private TransactionHistoryDTO mapInputToDTO(TransactionHistoryInput input) {
-        TransactionHistoryDTO dto = new TransactionHistoryDTO();
-        dto.setTransactionId(input.getTransactionId());
-        dto.setExternalTransactionId(input.getExternalTransactionId());
-        dto.setType(input.getType());
-        dto.setStatus(input.getStatus());
-        dto.setAmount(input.getAmount());
-        dto.setCurrency(input.getCurrency());
-        dto.setSenderPhone(input.getSenderPhone());
-        dto.setReceiverPhone(input.getReceiverPhone());
-        dto.setSenderName(input.getSenderName());
-        dto.setReceiverName(input.getReceiverName());
-        dto.setDescription(input.getDescription());
-        dto.setFees(input.getFees());
-        dto.setBalanceBefore(input.getBalanceBefore());
-        dto.setBalanceAfter(input.getBalanceAfter());
-        dto.setMerchantCode(input.getMerchantCode());
-        dto.setBillReference(input.getBillReference());
-        dto.setBankAccountNumber(input.getBankAccountNumber());
-        dto.setTransactionDate(input.getTransactionDate());
-        dto.setProcessingDate(input.getProcessingDate());
-        dto.setCreatedBy(input.getCreatedBy());
-        dto.setUserAgent(input.getUserAgent());
-        dto.setIpAddress(input.getIpAddress());
-        dto.setDeviceId(input.getDeviceId());
-        dto.setMetadata(input.getMetadata());
-        dto.setErrorMessage(input.getErrorMessage());
-        dto.setCorrelationId(input.getCorrelationId());
-        dto.setVersion(input.getVersion());
-        dto.setHistorySaved(input.getHistorySaved());
-
-        return dto;
+        return new TransactionHistoryDTO();
     }
 
     // Helper method to create Sort object

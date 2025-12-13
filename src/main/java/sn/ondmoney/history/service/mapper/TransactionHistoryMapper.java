@@ -17,14 +17,15 @@ public interface TransactionHistoryMapper extends EntityMapper<TransactionHistor
         if (entity == null) return null;
 
         TransactionHistoryDTO dto = new TransactionHistoryDTO();
+
         dto.setId(entity.getId());
-        dto.setTransactionId(entity.getTransactionId() != null ? entity.getTransactionId() : "UNKNOWN");
+        dto.setTransactionId(entity.getTransactionId());
         dto.setExternalTransactionId(entity.getExternalTransactionId());
-        dto.setType(entity.getType() != null ? entity.getType() : TransactionType.DEPOSIT);
-        dto.setStatus(entity.getStatus() != null ? entity.getStatus() : TransactionStatus.PENDING);
-        dto.setAmount(entity.getAmount() != null ? entity.getAmount() : BigDecimal.ZERO);
-        dto.setCurrency(entity.getCurrency() != null ? entity.getCurrency() : "XOF");
-        dto.setSenderPhone(entity.getSenderPhone() != null ? entity.getSenderPhone() : "0000000000");
+        dto.setType(entity.getType());
+        dto.setStatus(entity.getStatus());
+        dto.setAmount(entity.getAmount());
+        dto.setCurrency(entity.getCurrency());
+        dto.setSenderPhone(entity.getSenderPhone());
         dto.setReceiverPhone(entity.getReceiverPhone());
         dto.setSenderName(entity.getSenderName());
         dto.setReceiverName(entity.getReceiverName());
@@ -35,7 +36,7 @@ public interface TransactionHistoryMapper extends EntityMapper<TransactionHistor
         dto.setMerchantCode(entity.getMerchantCode());
         dto.setBillReference(entity.getBillReference());
         dto.setBankAccountNumber(entity.getBankAccountNumber());
-        dto.setTransactionDate(entity.getTransactionDate() != null ? entity.getTransactionDate() : Instant.now());
+        dto.setTransactionDate(entity.getTransactionDate());
         dto.setProcessingDate(entity.getProcessingDate());
         dto.setCreatedBy(entity.getCreatedBy());
         dto.setUserAgent(entity.getUserAgent());
@@ -45,7 +46,7 @@ public interface TransactionHistoryMapper extends EntityMapper<TransactionHistor
         dto.setErrorMessage(entity.getErrorMessage());
         dto.setCorrelationId(entity.getCorrelationId());
         dto.setVersion(entity.getVersion());
-        dto.setHistorySaved(entity.getHistorySaved() != null ? entity.getHistorySaved() : Boolean.FALSE);
+        dto.setHistorySaved(entity.getHistorySaved());
 
         return dto;
     }
