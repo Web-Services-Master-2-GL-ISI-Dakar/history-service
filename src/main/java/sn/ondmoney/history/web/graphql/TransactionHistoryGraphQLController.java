@@ -1,24 +1,25 @@
 package sn.ondmoney.history.web.graphql;
 
 import sn.ondmoney.history.broker.TransactionTestDataGenerator;
-import sn.ondmoney.history.domain.enumeration.TransactionType;
+import sn.ondmoney.history.domain.enumeration.*;
 import sn.ondmoney.history.service.TransactionHistoryService;
 import sn.ondmoney.history.service.dto.TransactionHistoryDTO;
 import sn.ondmoney.history.web.graphql.input.TransactionHistoryInput;
 import sn.ondmoney.history.web.graphql.input.TransactionSearchInput;
-import sn.ondmoney.history.web.graphql.response.TransactionPageResponse;
-import sn.ondmoney.history.web.graphql.response.TransactionResponse;
-import sn.ondmoney.history.web.graphql.response.TransactionTypesResponse;
+import sn.ondmoney.history.web.graphql.response.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,20 +43,29 @@ public class TransactionHistoryGraphQLController {
     public TransactionPageResponse searchTransactions(@Argument TransactionSearchInput searchInput) {
         LOG.debug("GraphQL request to search transactions with input: {}", searchInput);
 
+        // Create pageable with sorting
+        Sort sort = createSort(searchInput.getSortBy(), searchInput.getSortDirection());
         Pageable pageable = PageRequest.of(
             searchInput.getPage() != null ? searchInput.getPage() : 0,
-            searchInput.getSize() != null ? searchInput.getSize() : 20
+            searchInput.getSize() != null ? searchInput.getSize() : 20,
+            sort
         );
 
         Page<TransactionHistoryDTO> page = transactionHistoryService.searchByCriteria(
             searchInput.getSenderPhone(),
             searchInput.getReceiverPhone(),
-            searchInput.getType(),
-            searchInput.getStatus(),
+            searchInput.getTypes(),
+            searchInput.getStatuses(),
             searchInput.getStartDate(),
             searchInput.getEndDate(),
             searchInput.getMinAmount(),
             searchInput.getMaxAmount(),
+            searchInput.getCurrency(),
+            searchInput.getDirection(),
+            searchInput.getMerchantCode(),
+            searchInput.getBillReference(),
+            searchInput.getBankAccountNumber(),
+            searchInput.getDescriptionContains(),
             pageable
         );
 
@@ -66,33 +76,37 @@ public class TransactionHistoryGraphQLController {
     public TransactionHistoryDTO transactionHistory(@Argument String id) {
         LOG.debug("GraphQL request to get TransactionHistory : {}", id);
 
-        Optional<TransactionHistoryDTO> result = transactionHistoryService.findOne(id);
+        TransactionHistoryDTO dto = transactionHistoryService.findOne(id)
+            .orElseThrow(() -> new RuntimeException("TransactionHistory not found with id: " + id));
 
-        if (result.isPresent()) {
-            TransactionHistoryDTO dto = result.get();
-            LOG.debug("Found DTO - ID: {}, TransactionId: {}, Type: {}, Status: {}, Amount: {}, SenderPhone: {}, TransactionDate: {}",
-                dto.getId(),
-                dto.getTransactionId(),
-                dto.getType(),
-                dto.getStatus(),
-                dto.getAmount(),
-                dto.getSenderPhone(),
-                dto.getTransactionDate()
-            );
-            return dto;
-        } else {
-            LOG.debug("No transaction found with id: {}", id);
-            throw new RuntimeException("TransactionHistory not found with id: " + id);
-        }
+        LOG.debug("Found DTO - ID: {}, TransactionId: {}, Type: {}, Status: {}, Amount: {}, SenderPhone: {}, TransactionDate: {}",
+            dto.getId(),
+            dto.getTransactionId(),
+            dto.getType(),
+            dto.getStatus(),
+            dto.getAmount(),
+            dto.getSenderPhone(),
+            dto.getTransactionDate()
+        );
+
+        return dto;
     }
 
     @QueryMapping
-    public TransactionPageResponse allTransactionHistories(@Argument Integer page, @Argument Integer size) {
+    public TransactionPageResponse allTransactionHistories(
+        @Argument Integer page,
+        @Argument Integer size,
+        @Argument TransactionSortField sortBy,
+        @Argument SortDirection sortDirection
+    ) {
         LOG.debug("GraphQL request to get all TransactionHistories");
 
+        // Create pageable with sorting
+        Sort sort = createSort(sortBy, sortDirection);
         Pageable pageable = PageRequest.of(
             page != null ? page : 0,
-            size != null ? size : 20
+            size != null ? size : 20,
+            sort
         );
 
         Page<TransactionHistoryDTO> resultPage = transactionHistoryService.findAll(pageable);
@@ -117,6 +131,88 @@ public class TransactionHistoryGraphQLController {
             .collect(Collectors.toList());
 
         return new TransactionTypesResponse(types);
+    }
+
+    // NEW: Get user's complete transaction history
+    @QueryMapping
+    public TransactionPageResponse userTransactions(
+        @Argument String phoneNumber,
+        @Argument Integer page,
+        @Argument Integer size,
+        @Argument List<TransactionType> types,
+        @Argument List<TransactionStatus> statuses,
+        @Argument Instant startDate,
+        @Argument Instant endDate,
+        @Argument TransactionDirection direction,
+        @Argument TransactionSortField sortBy,
+        @Argument SortDirection sortDirection
+    ) {
+        LOG.debug("GraphQL request to get user transactions for: {}", phoneNumber);
+
+        // Create pageable with sorting
+        Sort sort = createSort(sortBy, sortDirection);
+        Pageable pageable = PageRequest.of(
+            page != null ? page : 0,
+            size != null ? size : 20,
+            sort
+        );
+
+        // Build search input based on direction
+        String senderPhone = null;
+        String receiverPhone = null;
+
+        switch (direction != null ? direction : TransactionDirection.ALL) {
+            case SENT:
+                senderPhone = phoneNumber;
+                break;
+            case RECEIVED:
+                receiverPhone = phoneNumber;
+                break;
+            case ALL:
+                // For ALL direction, we need to query both sent and received
+                // This requires a more complex query - implement in service layer
+                break;
+        }
+
+        Page<TransactionHistoryDTO> userpage = transactionHistoryService.searchByCriteria(
+            senderPhone,
+            receiverPhone,
+            types,
+            statuses,
+            startDate,
+            endDate,
+            null, // minAmount
+            null, // maxAmount
+            null, // currency
+            direction,
+            null, // merchantCode
+            null, // billReference
+            null, // bankAccountNumber
+            null, // descriptionContains
+            pageable
+        );
+
+        return TransactionPageResponse.from(userpage);
+    }
+
+    // NEW: Get user transaction statistics
+    @QueryMapping
+    public UserTransactionStats userTransactionStats(
+        @Argument String phoneNumber,
+        @Argument Instant startDate,
+        @Argument Instant endDate,
+        @Argument List<TransactionType> types,
+        @Argument TransactionDirection direction
+    ) {
+        LOG.debug("GraphQL request to get user transaction stats for: {}", phoneNumber);
+
+        return transactionHistoryService.getUserTransactionStats(
+            phoneNumber,
+            startDate,
+            endDate,
+            types,
+            direction
+        );
     }
 
     @MutationMapping
@@ -181,42 +277,47 @@ public class TransactionHistoryGraphQLController {
                 testDataGenerator.generateTestTransaction(type);
                 return type.toString() + " - Generated";
             })
-            .collect(Collectors.toList());
+            .toList();
 
         return new TransactionResponse("success", "All transaction types generated and sent to Kafka", null);
     }
 
     private TransactionHistoryDTO mapInputToDTO(TransactionHistoryInput input) {
-        TransactionHistoryDTO dto = new TransactionHistoryDTO();
-        dto.setTransactionId(input.getTransactionId());
-        dto.setExternalTransactionId(input.getExternalTransactionId());
-        dto.setType(input.getType());
-        dto.setStatus(input.getStatus());
-        dto.setAmount(input.getAmount());
-        dto.setCurrency(input.getCurrency());
-        dto.setSenderPhone(input.getSenderPhone());
-        dto.setReceiverPhone(input.getReceiverPhone());
-        dto.setSenderName(input.getSenderName());
-        dto.setReceiverName(input.getReceiverName());
-        dto.setDescription(input.getDescription());
-        dto.setFees(input.getFees());
-        dto.setBalanceBefore(input.getBalanceBefore());
-        dto.setBalanceAfter(input.getBalanceAfter());
-        dto.setMerchantCode(input.getMerchantCode());
-        dto.setBillReference(input.getBillReference());
-        dto.setBankAccountNumber(input.getBankAccountNumber());
-        dto.setTransactionDate(input.getTransactionDate());
-        dto.setProcessingDate(input.getProcessingDate());
-        dto.setCreatedBy(input.getCreatedBy());
-        dto.setUserAgent(input.getUserAgent());
-        dto.setIpAddress(input.getIpAddress());
-        dto.setDeviceId(input.getDeviceId());
-        dto.setMetadata(input.getMetadata());
-        dto.setErrorMessage(input.getErrorMessage());
-        dto.setCorrelationId(input.getCorrelationId());
-        dto.setVersion(input.getVersion());
-        dto.setHistorySaved(input.getHistorySaved());
+        return new TransactionHistoryDTO();
+    }
 
-        return dto;
+    // Helper method to create Sort object
+    private Sort createSort(TransactionSortField sortBy, SortDirection sortDirection) {
+        if (sortBy == null) {
+            sortBy = TransactionSortField.TRANSACTION_DATE;
+        }
+        if (sortDirection == null) {
+            sortDirection = SortDirection.DESC;
+        }
+
+        Sort.Direction direction = sortDirection == SortDirection.ASC ?
+            Sort.Direction.ASC : Sort.Direction.DESC;
+
+        String sortField;
+        switch (sortBy) {
+            case AMOUNT:
+                sortField = "amount";
+                break;
+            case STATUS:
+                sortField = "status";
+                break;
+            case TYPE:
+                sortField = "type";
+                break;
+            case CREATED_AT:
+                sortField = "createdDate";
+                break;
+            case TRANSACTION_DATE:
+            default:
+                sortField = "transactionDate";
+                break;
+        }
+
+        return Sort.by(direction, sortField);
     }
 }

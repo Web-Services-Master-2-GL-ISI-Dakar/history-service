@@ -76,12 +76,12 @@ public class TransactionHistoryResource {
      * {@code GET  /transaction-histories/search} : search transactions with multiple criteria using Elasticsearch.
      * Utilise l'implémentation existante du repository de recherche.
      * Exemples d'utilisation :
-     * /api/transaction-histories/search?phoneNumber=+221771234567
+     * /api/transaction-histories/search?phoneNumber=00221771234567
      * /api/transaction-histories/search?type=DEPOSIT&status=SUCCESS
      * /api/transaction-histories/search?query=transfert+urgence
      * /api/transaction-histories/search?startDate=2024-01-01T00:00:00Z&endDate=2024-01-31T23:59:59Z
      * /api/transaction-histories/search?minAmount=1000&maxAmount=50000
-     * /api/transaction-histories/search?phoneNumber=+221771234567&type=TRANSFER&status=SUCCESS&startDate=2024-01-01T00:00:00Z&endDate=2024-01-31T23:59:59Z
+     * /api/transaction-histories/search?phoneNumber=00221771234567&type=TRANSFER&status=SUCCESS&startDate=2024-01-01T00:00:00Z&endDate=2024-01-31T23:59:59Z
      */
     @GetMapping("/search")
     public ResponseEntity<List<TransactionHistoryDTO>> searchTransactions(

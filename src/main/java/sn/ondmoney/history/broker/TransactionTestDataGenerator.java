@@ -27,8 +27,8 @@ public class TransactionTestDataGenerator {
     private final ObjectMapper objectMapper;
     private final Random random = new Random();
 
-    private final List<String> senderPhones = Arrays.asList("+221771234567", "+221781234568", "+221791234569", "+221761234560");
-    private final List<String> receiverPhones = Arrays.asList("+221771234500", "+221781234501", "+221791234502", "+221761234503");
+    private final List<String> senderPhones = Arrays.asList("00221771234567", "+221781234568", "00221791234569", "+221761234560");
+    private final List<String> receiverPhones = Arrays.asList("00221771234500", "+221781234501", "00221791234502", "+221761234503");
     private final List<String> senderNames = Arrays.asList("Moussa Diop", "Aminata Fall", "Ibrahima Sow", "Fatou Bâ");
     private final List<String> receiverNames = Arrays.asList("Jean Dupont", "Marie Curie", "Paul Smith", "Anna Johnson");
 

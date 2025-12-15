@@ -3,7 +3,7 @@ chcp 65001 >nul
 setlocal enabledelayedexpansion
 
 REM Configuration
-set BASE_URL=http://localhost:8082/api
+set BASE_URL=http://localhost:8086/api
 set DELAY=2
 set GREEN=[SUCCESS]
 set RED=[ERROR]
