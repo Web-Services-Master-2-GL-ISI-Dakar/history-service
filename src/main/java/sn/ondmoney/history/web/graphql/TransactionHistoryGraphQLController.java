@@ -160,8 +160,9 @@ public class TransactionHistoryGraphQLController {
         // Build search input based on direction
         String senderPhone = null;
         String receiverPhone = null;
+        TransactionDirection effectiveDirection = direction != null ? direction : TransactionDirection.ALL;
 
-        switch (direction != null ? direction : TransactionDirection.ALL) {
+        switch (effectiveDirection) {
             case SENT:
                 senderPhone = phoneNumber;
                 break;
@@ -169,8 +170,9 @@ public class TransactionHistoryGraphQLController {
                 receiverPhone = phoneNumber;
                 break;
             case ALL:
-                // For ALL direction, we need to query both sent and received
-                // This requires a more complex query - implement in service layer
+                // For ALL direction, pass phoneNumber as senderPhone
+                // The service layer will use it for both senderPhone and receiverPhone in OR query
+                senderPhone = phoneNumber;
                 break;
         }
 
@@ -184,7 +186,7 @@ public class TransactionHistoryGraphQLController {
             null, // minAmount
             null, // maxAmount
             null, // currency
-            direction,
+            effectiveDirection,
             null, // merchantCode
             null, // billReference
             null, // bankAccountNumber

@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -24,9 +23,14 @@ public class TransactionHistorySearchService {
     private static final Logger LOG = LoggerFactory.getLogger(TransactionHistorySearchService.class);
 
     private final TransactionHistorySearchRepository transactionHistorySearchRepository;
+    private final PhoneNumberNormalizer phoneNormalizer;
 
-    public TransactionHistorySearchService(TransactionHistorySearchRepository transactionHistorySearchRepository) {
+    public TransactionHistorySearchService(
+        TransactionHistorySearchRepository transactionHistorySearchRepository,
+        PhoneNumberNormalizer phoneNormalizer
+    ) {
         this.transactionHistorySearchRepository = transactionHistorySearchRepository;
+        this.phoneNormalizer = phoneNormalizer;
     }
 
     // Search with all new criteria
@@ -119,47 +123,51 @@ public class TransactionHistorySearchService {
     ) {
         StringBuilder queryBuilder = new StringBuilder();
 
+        // Normalize and escape phone numbers
+        String normalizedSenderPhone = normalizeAndEscapePhone(senderPhone);
+        String normalizedReceiverPhone = normalizeAndEscapePhone(receiverPhone);
+
         // Handle direction - if direction is specified, adjust phone filters
         if (direction != null) {
             switch (direction) {
                 case SENT:
-                    if (senderPhone != null) {
+                    if (normalizedSenderPhone != null) {
                         addAndClause(queryBuilder);
-                        queryBuilder.append("senderPhone:").append(senderPhone);
+                        queryBuilder.append("senderPhone:\"").append(normalizedSenderPhone).append("\"");
                     }
                     break;
                 case RECEIVED:
-                    if (receiverPhone != null) {
+                    if (normalizedReceiverPhone != null) {
                         addAndClause(queryBuilder);
-                        queryBuilder.append("receiverPhone:").append(receiverPhone);
+                        queryBuilder.append("receiverPhone:\"").append(normalizedReceiverPhone).append("\"");
                     }
                     break;
                 case ALL:
                     // For ALL, we need to search both sender and receiver
-                    if (senderPhone != null && receiverPhone != null) {
+                    if (normalizedSenderPhone != null && normalizedReceiverPhone != null) {
                         addAndClause(queryBuilder);
-                        queryBuilder.append("(senderPhone:").append(senderPhone)
-                            .append(" OR receiverPhone:").append(receiverPhone).append(")");
-                    } else if (senderPhone != null) {
+                        queryBuilder.append("(senderPhone:\"").append(normalizedSenderPhone)
+                            .append("\" OR receiverPhone:\"").append(normalizedReceiverPhone).append("\")");
+                    } else if (normalizedSenderPhone != null) {
                         addAndClause(queryBuilder);
-                        queryBuilder.append("(senderPhone:").append(senderPhone)
-                            .append(" OR receiverPhone:").append(senderPhone).append(")");
-                    } else if (receiverPhone != null) {
+                        queryBuilder.append("(senderPhone:\"").append(normalizedSenderPhone)
+                            .append("\" OR receiverPhone:\"").append(normalizedSenderPhone).append("\")");
+                    } else if (normalizedReceiverPhone != null) {
                         addAndClause(queryBuilder);
-                        queryBuilder.append("(senderPhone:").append(receiverPhone)
-                            .append(" OR receiverPhone:").append(receiverPhone).append(")");
+                        queryBuilder.append("(senderPhone:\"").append(normalizedReceiverPhone)
+                            .append("\" OR receiverPhone:\"").append(normalizedReceiverPhone).append("\")");
                     }
                     break;
             }
         } else {
             // No direction specified, use individual phone filters
-            if (senderPhone != null) {
+            if (normalizedSenderPhone != null) {
                 addAndClause(queryBuilder);
-                queryBuilder.append("senderPhone:").append(senderPhone);
+                queryBuilder.append("senderPhone:\"").append(normalizedSenderPhone).append("\"");
             }
-            if (receiverPhone != null) {
+            if (normalizedReceiverPhone != null) {
                 addAndClause(queryBuilder);
-                queryBuilder.append("receiverPhone:").append(receiverPhone);
+                queryBuilder.append("receiverPhone:\"").append(normalizedReceiverPhone).append("\"");
             }
         }
 
@@ -259,14 +267,19 @@ public class TransactionHistorySearchService {
     ) {
         StringBuilder queryBuilder = new StringBuilder();
 
+        // Normalize and escape phone number
+        String normalizedPhone = normalizeAndEscapePhone(phoneNumber);
+
         // User is involved in transaction (as sender or receiver based on direction)
-        if (direction == null || direction == TransactionDirection.ALL) {
-            queryBuilder.append("(senderPhone:").append(phoneNumber)
-                .append(" OR receiverPhone:").append(phoneNumber).append(")");
-        } else if (direction == TransactionDirection.SENT) {
-            queryBuilder.append("senderPhone:").append(phoneNumber);
-        } else if (direction == TransactionDirection.RECEIVED) {
-            queryBuilder.append("receiverPhone:").append(phoneNumber);
+        if (normalizedPhone != null) {
+            if (direction == null || direction == TransactionDirection.ALL) {
+                queryBuilder.append("(senderPhone:\"").append(normalizedPhone)
+                    .append("\" OR receiverPhone:\"").append(normalizedPhone).append("\")");
+            } else if (direction == TransactionDirection.SENT) {
+                queryBuilder.append("senderPhone:\"").append(normalizedPhone).append("\"");
+            } else if (direction == TransactionDirection.RECEIVED) {
+                queryBuilder.append("receiverPhone:\"").append(normalizedPhone).append("\"");
+            }
         }
 
         // Date range
@@ -287,6 +300,33 @@ public class TransactionHistorySearchService {
         }
 
         return queryBuilder.toString();
+    }
+
+    /**
+     * Normalize and escape phone number for Elasticsearch QueryString.
+     * Converts +221 to 00221 and escapes special characters.
+     */
+    private String normalizeAndEscapePhone(String phone) {
+        if (phone == null || phone.trim().isEmpty()) {
+            return null;
+        }
+
+        // Normalize using PhoneNumberNormalizer (+221 -> 00221)
+        String normalized = phoneNormalizer.normalize(phone);
+
+        // Escape special characters for Elasticsearch QueryString
+        return escapeQueryString(normalized);
+    }
+
+    /**
+     * Escape special characters for Elasticsearch QueryString.
+     * Characters: + - = && || > < ! ( ) { } [ ] ^ " ~ * ? : \ /
+     */
+    private String escapeQueryString(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+        return input.replaceAll("([+\\-=&|><!(){}\\[\\]^\"~*?:\\\\/])", "\\\\$1");
     }
 
     // Create user transaction statistics from transaction list
