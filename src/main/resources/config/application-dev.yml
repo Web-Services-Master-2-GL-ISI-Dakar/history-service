@@ -71,7 +71,8 @@ spring:
       enabled: false
   data:
     mongodb:
-      uri: mongodb://localhost:27017/historyService
+      # Port 27018 dédié pour HistoryMS (séparé de NotificationMS qui utilise 27017)
+      uri: mongodb://localhost:27018/historyService
       database: transactions_histories
   elasticsearch:
     uris: http://localhost:9200
