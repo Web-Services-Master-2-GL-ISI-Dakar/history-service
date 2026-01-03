@@ -113,6 +113,7 @@ public class TransactionTestDataGenerator {
             case MERCHANT_PAYMENT -> BigDecimal.valueOf(random.nextInt(50_000) + 1_000);
             case BANK_TRANSFER -> BigDecimal.valueOf(random.nextInt(300_000) + 5_000);
             case TOP_UP_CARD -> BigDecimal.valueOf(random.nextInt(50_000) + 1_000);
+            case WALLET_CREATION -> BigDecimal.ZERO;
         };
     }
 
@@ -140,6 +141,7 @@ public class TransactionTestDataGenerator {
             case MERCHANT_PAYMENT -> "Paiement marchand " + getRandomReceiverName();
             case BANK_TRANSFER -> "Transfert bancaire vers " + getRandomReceiverName();
             case TOP_UP_CARD -> "Recharge de carte électronique";
+            case WALLET_CREATION -> "Création du portefeuille";
         };
     }
 

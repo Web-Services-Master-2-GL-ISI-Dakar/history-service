@@ -9,6 +9,7 @@ import lombok.Getter;
 public enum TransactionStatus {
     PENDING("En attente"),
     SUCCESS("Réussi"),
+    COMPLETED("Terminé"),
     FAILED("Échoué"),
     CANCELLED("Annulé"),
     PROCESSING("En cours de traitement");
