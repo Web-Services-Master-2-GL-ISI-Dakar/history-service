@@ -1,6 +1,6 @@
 package sn.ondmoney.history.web.graphql;
 
-import sn.ondmoney.history.broker.TransactionTestDataGenerator;
+
 import sn.ondmoney.history.domain.enumeration.*;
 import sn.ondmoney.history.service.TransactionHistoryService;
 import sn.ondmoney.history.service.dto.TransactionHistoryDTO;
@@ -29,14 +29,11 @@ public class TransactionHistoryGraphQLController {
     private static final Logger LOG = LoggerFactory.getLogger(TransactionHistoryGraphQLController.class);
 
     private final TransactionHistoryService transactionHistoryService;
-    private final TransactionTestDataGenerator testDataGenerator;
 
     public TransactionHistoryGraphQLController(
-        TransactionHistoryService transactionHistoryService,
-        TransactionTestDataGenerator testDataGenerator
+        TransactionHistoryService transactionHistoryService
     ) {
         this.transactionHistoryService = transactionHistoryService;
-        this.testDataGenerator = testDataGenerator;
     }
 
     @QueryMapping
@@ -255,33 +252,6 @@ public class TransactionHistoryGraphQLController {
         LOG.debug("GraphQL request to delete TransactionHistory : {}", id);
         transactionHistoryService.delete(id);
         return true;
-    }
-
-    @MutationMapping
-    public TransactionResponse generateTransaction(@Argument TransactionType type) {
-        LOG.info("GraphQL request to generate test transaction of type: {}", type);
-        testDataGenerator.generateTestTransaction(type);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("status", "success");
-        response.put("message", "Transaction " + type + " generated and sent to Kafka");
-        response.put("type", type.toString());
-
-        return new TransactionResponse("success", "Transaction " + type + " generated and sent to Kafka", type.toString());
-    }
-
-    @MutationMapping
-    public TransactionResponse generateAllTransactions() {
-        LOG.info("GraphQL request to generate all transaction types");
-
-        List<String> results = Arrays.stream(TransactionType.values())
-            .map(type -> {
-                testDataGenerator.generateTestTransaction(type);
-                return type.toString() + " - Generated";
-            })
-            .toList();
-
-        return new TransactionResponse("success", "All transaction types generated and sent to Kafka", null);
     }
 
     private TransactionHistoryDTO mapInputToDTO(TransactionHistoryInput input) {

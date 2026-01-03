@@ -1,6 +1,5 @@
 package sn.ondmoney.history.web.rest;
 
-import sn.ondmoney.history.broker.TransactionTestDataGenerator;
 import sn.ondmoney.history.domain.enumeration.TransactionType;
 import java.util.Arrays;
 import java.util.HashMap;

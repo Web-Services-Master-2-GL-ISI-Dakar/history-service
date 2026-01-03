@@ -53,8 +53,9 @@ public class TransactionTestDataGenerator {
 
     /**
      * Scheduled: generate one transaction of each type every 1 minute
+     * DISABLED - Test data generation is disabled in production
      */
-    @Scheduled(fixedRate = 60000)
+    // @Scheduled(fixedRate = 60000)
     public void generateRandomTransactions() {
         for (TransactionType type : TransactionType.values()) {
             generateTestTransaction(type);

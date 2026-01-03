@@ -23,13 +23,16 @@ public class TransactionHistorySearchService {
     private static final Logger LOG = LoggerFactory.getLogger(TransactionHistorySearchService.class);
 
     private final TransactionHistorySearchRepository transactionHistorySearchRepository;
+    private final TransactionHistoryMongoSearchService mongoSearchService;
     private final PhoneNumberNormalizer phoneNormalizer;
 
     public TransactionHistorySearchService(
         TransactionHistorySearchRepository transactionHistorySearchRepository,
+        TransactionHistoryMongoSearchService mongoSearchService,
         PhoneNumberNormalizer phoneNormalizer
     ) {
         this.transactionHistorySearchRepository = transactionHistorySearchRepository;
+        this.mongoSearchService = mongoSearchService;
         this.phoneNormalizer = phoneNormalizer;
     }
 
@@ -69,15 +72,13 @@ public class TransactionHistorySearchService {
             descriptionContains
         );
 
-        // Build query string based on direction
-        String finalQuery = buildQueryString(
+        // Use MongoDB search instead of Elasticsearch
+        return mongoSearchService.searchTransactions(
             senderPhone, receiverPhone, types, statuses, startDate, endDate,
             minAmount, maxAmount, currency, direction, merchantCode,
-            billReference, bankAccountNumber, descriptionContains
+            billReference, bankAccountNumber, descriptionContains,
+            pageable
         );
-
-        LOG.debug("Executing search query: {}", finalQuery);
-        return transactionHistorySearchRepository.search(finalQuery, pageable);
     }
 
     // Get user transaction statistics

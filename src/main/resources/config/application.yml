@@ -132,7 +132,7 @@ spring:
 
   cloud:
     function:
-      definition: transactionTxnEventConsumer;transactionTxnEventProducer;transactionHistoryEventProducer
+      definition: transactionTxnEventConsumer;transactionHistoryEventProducer
 
     stream:
       kafka:
@@ -154,12 +154,6 @@ spring:
         transactionTxnEventConsumer-in-0:
           destination: transaction-events
           group: history-service
-          content-type: application/json
-
-
-        # ---- Raw Transaction Producer ----
-        transactionTxnEventProducer-out-0:
-          destination: transaction-events
           content-type: application/json
 
         # ---- History Status Producer ----

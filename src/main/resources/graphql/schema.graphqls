@@ -73,12 +73,6 @@ enum SortDirection {
   DESC
 }
 
-type TransactionResponse {
-  status: String!
-  message: String!
-  type: String
-}
-
 type TransactionTypesResponse {
   types: [String!]!
 }
@@ -240,10 +234,4 @@ type Mutation {
 
   # Delete transaction
   deleteTransactionHistory(id: ID!): Boolean!
-
-  # Generate specific transaction type
-  generateTransaction(type: TransactionType!): TransactionResponse!
-
-  # Generate all transaction types
-  generateAllTransactions: TransactionResponse!
 }
