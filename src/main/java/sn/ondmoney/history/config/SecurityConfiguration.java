@@ -48,10 +48,14 @@ public class SecurityConfiguration {
                 authz
                     .requestMatchers(mvc.pattern("/api/authenticate")).permitAll()
                     .requestMatchers(mvc.pattern("/api/auth-info")).permitAll()
-                    .requestMatchers(mvc.pattern("/api/admin/**")).hasAuthority(AuthoritiesConstants.ADMIN)
-                    .requestMatchers(mvc.pattern("/api/**")).authenticated()
-                    .requestMatchers(mvc.pattern("/graphiql/**")).authenticated()
-                    .requestMatchers(mvc.pattern("/graphql/**")).authenticated()
+                    // ====================================================
+                    // DÉVELOPPEMENT: Authentification désactivée temporairement
+                    // TODO: Réactiver l'authentification pour la production
+                    // ====================================================
+                    .requestMatchers(mvc.pattern("/api/**")).permitAll()
+                    .requestMatchers(mvc.pattern("/graphiql/**")).permitAll()
+                    .requestMatchers(mvc.pattern("/graphql/**")).permitAll()
+                    // ====================================================
                     .requestMatchers(mvc.pattern("/v3/api-docs/**")).hasAuthority(AuthoritiesConstants.ADMIN)
                     .requestMatchers(mvc.pattern("/management/health")).permitAll()
                     .requestMatchers(mvc.pattern("/management/health/**")).permitAll()
@@ -60,8 +64,10 @@ public class SecurityConfiguration {
                     .requestMatchers(mvc.pattern("/management/**")).hasAuthority(AuthoritiesConstants.ADMIN)
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(authenticationConverter())))
-            .oauth2Client(withDefaults());
+            // Désactivé temporairement pour le développement
+            // .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(authenticationConverter())))
+            // .oauth2Client(withDefaults())
+            ;
         return http.build();
     }
 

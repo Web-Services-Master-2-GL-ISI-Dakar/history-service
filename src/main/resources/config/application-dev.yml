@@ -27,11 +27,11 @@ logging:
 #    org.springframework.context: DEBUG
 
 eureka:
+  client:
+    # Désactivé pour le développement local sans JHipster Registry
+    enabled: false
   instance:
     prefer-ip-address: true
-  client:
-    service-url:
-      defaultZone: http://admin:${jhipster.registry.password}@localhost:8761/eureka/
 
 management:
   health:
@@ -67,12 +67,8 @@ spring:
       indent-output: true
   cloud:
     config:
-      uri: http://admin:${jhipster.registry.password}@localhost:8761/config
-      # name of the config server's property source (file.yml) that we want to use
-      name: historyService
-      profile: dev
-      label: main # toggle to switch to a different version of the configuration as stored in git
-      # it can be set to any label, branch or commit of the configuration source Git repository
+      # Désactivé pour le développement local sans JHipster Registry
+      enabled: false
   data:
     mongodb:
       uri: mongodb://localhost:27017/historyService

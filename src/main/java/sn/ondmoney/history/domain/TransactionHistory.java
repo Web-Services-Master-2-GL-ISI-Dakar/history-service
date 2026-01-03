@@ -133,6 +133,18 @@ public class TransactionHistory implements Serializable {
     @org.springframework.data.elasticsearch.annotations.Field(type = org.springframework.data.elasticsearch.annotations.FieldType.Text)
     private String correlationId;
 
+    @Field("user_id")
+    @org.springframework.data.elasticsearch.annotations.Field(type = org.springframework.data.elasticsearch.annotations.FieldType.Keyword)
+    private String userId;
+
+    @Field("counterparty_id")
+    @org.springframework.data.elasticsearch.annotations.Field(type = org.springframework.data.elasticsearch.annotations.FieldType.Text)
+    private String counterpartyId;
+
+    @Field("counterparty_name")
+    @org.springframework.data.elasticsearch.annotations.Field(type = org.springframework.data.elasticsearch.annotations.FieldType.Text)
+    private String counterpartyName;
+
     @Field("version")
     @org.springframework.data.elasticsearch.annotations.Field(type = org.springframework.data.elasticsearch.annotations.FieldType.Integer)
     private Integer version;

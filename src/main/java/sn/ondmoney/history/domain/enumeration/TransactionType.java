@@ -14,7 +14,8 @@ public enum TransactionType {
     AIRTIME("Achat de crédit"),
     MERCHANT_PAYMENT("Paiement marchand"),
     BANK_TRANSFER("Transfert bancaire"),
-    TOP_UP_CARD("Recharge de carte");
+    TOP_UP_CARD("Recharge de carte"),
+    WALLET_CREATION("Création de portefeuille");
 
     private final String description;
 
