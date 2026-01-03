@@ -28,10 +28,12 @@ logging:
 
 eureka:
   client:
-    # Désactivé pour le développement local sans JHipster Registry
-    enabled: false
+    enabled: true
+    service-url:
+      defaultZone: http://admin:admin@localhost:8761/eureka/
   instance:
     prefer-ip-address: true
+    appname: history-service
 
 management:
   health:
